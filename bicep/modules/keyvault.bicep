@@ -2,8 +2,8 @@ param kvName string
 param location string
 
 resource kv 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: my-vault
-  location: WEST US
+  name: kvName
+  location: location
   properties: {
     sku: {
       family: 'A'
