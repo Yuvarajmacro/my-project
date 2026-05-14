@@ -1,0 +1,32 @@
+trigger:
+  branches:
+    include:
+      - develop
+      - feature/*
+
+pr:
+  branches:
+    include:
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'YOUR-SERVICE-CONNECTION'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az bicep build --file bicep/main.bicep
+      - task: AzureCLI@2
+  inputs:
+    azureSubscription: 'YOUR-SERVICE-CONNECTION'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az deployment sub what-if \
+        --template-file bicep/main.bicep \
+        --parameters bicep/parameters/dev.parameters.json \
+        --location eastus

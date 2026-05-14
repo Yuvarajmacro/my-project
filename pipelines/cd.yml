@@ -1,0 +1,40 @@
+trigger: none
+
+stages:
+- stage: Dev
+  jobs:
+  - job: DeployDev
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'YOUR-SERVICE-CONNECTION'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          az deployment sub create \
+            --location eastus \
+            --template-file bicep/main.bicep \
+            --parameters bicep/parameters/dev.parameters.json
+
+- stage: Prod
+  dependsOn: Dev
+  condition: succeeded()
+  jobs:
+  - deployment: DeployProd
+    environment: prod
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'YOUR-SERVICE-CONNECTION'
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                az deployment sub create \
+                  --location centralindia \
+                  --template-file bicep/main.bicep \
+                  --parameters bicep/parameters/prod.parameters.json
+
+                  
